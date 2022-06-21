@@ -55,7 +55,7 @@ With this package, you can use the capabilities of the SMS system sms.ir and kav
         'sender' => 'اختیاری',
         'type' => 'اختیاری',
         'localid' => 'اختیاری'
-     ]) // for Read more https://kavenegar.com/rest.html#sms-send
+     ]) 
      ->sendMessages();
 ```
 ### or
@@ -69,7 +69,7 @@ With this package, you can use the capabilities of the SMS system sms.ir and kav
         'sender' => 'اختیاری',
         'type' => 'اختیاری',
         'localid' => 'اختیاری'
-     ]) // for Read more https://kavenegar.com/rest.html#sms-send
+     ])
      ->sendMessages();
 ```
 ### Use method `sendMessageGroup`
@@ -82,7 +82,7 @@ With this package, you can use the capabilities of the SMS system sms.ir and kav
          'date' => 'اختیاری',
          'type' => 'اختیاری',
          'localmessageids' => 'اختیاری',
-     ]) // for read more https://kavenegar.com/rest.html#sms-sendarray
+     ])
      ->sendMessageGroup();
 ```
 ### or
@@ -96,12 +96,12 @@ With this package, you can use the capabilities of the SMS system sms.ir and kav
          'date' => 'اختیاری',
          'type' => 'اختیاری',
          'localmessageids' => 'اختیاری',
-     ]) // for read more https://kavenegar.com/rest.html#sms-sendarray
+     ])
      ->sendMessageGroup();
 ```
 #
 ### Use method `voiceCall`
-this metode SMS system ['kavenegar'] amd ['milepayamak'] support
+this metode SMS system ['kavenegar'] support
 ```bash
   Sms::make('kavenegar')
     ->message('set message for voice call')
@@ -122,13 +122,9 @@ this metode SMS system ['kavenegar'] amd ['milepayamak'] support
 |-------------|-------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
 | kavenegar   | params()    | ['token' => 122254] // one parameter <br/>['token' => 122254, 'token2' => 54875, 'token3' => 54875] // multi parameter                                                                                              | Yes     |
  | Sms.ir      | params()    | ['name' => 'verify', 'value' => 45666] // send message code verify login <br/> [<br/>['name' => 'name_product', 'value' => 45666]<br/>['name' => 'price', 'value' => 5000]<br/>] // send message Factor buy product | Yes     |
- | Milepayamak | params()    |                                                                                                                                                                                                                     | Yes     |
  | Kavenegar   | mobile()    | '09105805770' // use for one user<br/> ['09105805770', '09105805770', '09105805770'] // Use for users <br/>                                                                                                         | Yes     |
 | Sms.ir      | mobile()    | '09105805770' // use for one user<br/> ['09105805770', '09105805770', '09105805770'] // Use for users <br/>                                                                                                         | Yes     |
-| Milepayamak | mobile()    |                                                                                                                                                                                                                     | Yes     |
-| Milepayamak | voiceCall() |                                                                                                                                                                                                                     | Yes     |
 | Kavenegar   | voiceCall() |                                                                                                                                                                                                                     | Yes     |
 | Sms.ir      | voiceCall() |                                                                                                                                                                                                                     | No      |
-| Milepayamak | message()   |                                                                                                                                                                                                                     | Yes     |
 | Kavenegar   | message() |                                                                                                                                                                                                                     | Yes     |
 | Sms.ir      | message() |                                                                                                                                                                                                                     | Yes      |      
