@@ -1,0 +1,30 @@
+{
+    "name": "abolfazlrastegar/laravel-sms",
+    "description": "package multi sms for Laravel",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "abolfazlrastegar",
+            "email": "abolfazlrastegar1996@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^7.4 || ^8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Abolfazlrastegar\\LaravelSms\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Abolfazlrastegar\\LaravelSms\\Providers\\SmsServiceProvider"
+            ],
+            "aliases": {
+                "Payments": "Abolfazlrastegar\\LaravelSms\\Facades\\Sms"
+            }
+        }
+    }
+}
