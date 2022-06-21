@@ -1,4 +1,4 @@
-![alt text](https://github.com/abolfazlrastegar/laravel-payments/blob/main/laravel-payment.png?raw=true)
+![alt text](https://github.com/abolfazlrastegar/laravel-sms/blob/main/laravel-sms.jpg?raw=true)
 
 <p align="center">
 <a href="https://packagist.org/packages/abolfazlrastegar/laravel-payments"><img src="https://img.shields.io/packagist/dt/abolfazlrastegar/laravel-payments" alt="Total Downloads"></a>
