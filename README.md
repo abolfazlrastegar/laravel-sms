@@ -16,7 +16,7 @@ With this package, you can use the capabilities of the SMS system sms.ir and kav
 
 ### Publish config 
 ```bash
-  php artisan vendor:publish --tag="config"
+  php artisan vendor:publish --provider="Abolfazlrastegar\LaravelSms\Providers\SmsServiceProvider" --tag="config"
 ```
 
 ### Docs drivers
