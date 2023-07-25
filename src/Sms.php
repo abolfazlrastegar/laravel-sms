@@ -10,7 +10,7 @@ class Sms
     /**
      * @var mixed|string
      */
-    private $name_sms;
+    private $driver_sms;
 
     /**
      * @var string | array
@@ -34,7 +34,7 @@ class Sms
 
     public function __construct($name_sms = '')
     {
-        $this->name_sms = $name_sms;
+        $this->setDriver($name_sms);
     }
 
     /**
@@ -89,7 +89,6 @@ class Sms
         $this->params = $params;
 
         return $this;
-
     }
 
     /**
@@ -97,7 +96,7 @@ class Sms
      */
     public function defaultSms ()
     {
-        $this->name_sms = config('sms.default');
+        $this->setDriver(config('sms.default'));
 
         return $this;
     }
@@ -108,9 +107,7 @@ class Sms
      */
     public function sendVerifyCode ()
     {
-        $sms = $this->makeSms();
-
-       return $sms->sendVerifyCode($this->mobile, $this->template, $this->params);
+        return $this->driver_sms->sendVerifyCode($this->mobile, $this->template, $this->params);
     }
 
     /**
@@ -119,9 +116,7 @@ class Sms
      */
     public function sendMessages ()
     {
-        $sms = $this->makeSms();
-
-        return $sms->sendMessages($this->mobile, $this->message, $this->params);
+        return $this->driver_sms->sendMessages($this->mobile, $this->message, $this->params);
     }
 
     /**
@@ -131,9 +126,7 @@ class Sms
      */
     public function sendMessageGroup ()
     {
-        $sms = $this->makeSms();
-
-        return $sms->sendMessageGroup($this->mobile, $this->message, $this->params);
+        return $this->driver_sms->sendMessageGroup($this->mobile, $this->message, $this->params);
     }
     /**
      * @return mixed
@@ -141,22 +134,24 @@ class Sms
      */
     public function voiceCall ()
     {
-        $sms = $this->makeSms();
-
-        return $sms->voiceCall($this->mobile, $this->message, $this->params);
+        return $this->driver_sms->voiceCall($this->mobile, $this->message, $this->params);
     }
 
     /**
      * @return mixed
      * @throws createMessageErrorException
      */
-    private function makeSms ()
+    private function makeSms ($driverName)
     {
-        $sms_class = 'Abolfazlrastegar\LaravelSms\Drivers\\' . $this->name_sms;
+        $sms_class = 'Abolfazlrastegar\LaravelSms\Drivers\\' . $driverName;
         if (class_exists($sms_class, true))
         {
             return new $sms_class;
         }
-        throw createMessageErrorException::notClass($this->name_sms, 'Abolfazlrastegar\LaravelSms\Drivers');
+        throw createMessageErrorException::notClass($driverName, 'Abolfazlrastegar\LaravelSms\Drivers');
+    }
+
+    private function setDriver($driverName) {
+        $this->driver_sms = $this->makeSms($driverName);
     }
 }
