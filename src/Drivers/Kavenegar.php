@@ -21,10 +21,10 @@ class Kavenegar implements Message
         {
             $receptor = implode(',', $mobile);
         }
-        $date = isset($params['date']) ? $params['date'] : null;
-        $sender = isset($params['sender']) ? $params['sender'] : null;
-        $type = isset($params['type']) ? $params['type'] : null;
-        $localid = isset($params['localid']) ? $params['localid'] : null;
+        $date = $params['date'] ?? null;
+        $sender = $params['sender'] ?? null;
+        $type = $params['type'] ?? null;
+        $localid = $params['localid'] ?? null;
 
       return  $this->requestHttp('https://api.kavenegar.com/v1/'. $this->setKey() .'/sms/send.json?receptor=' . $receptor . '&sender='. $sender . '&date='. $date . '&type='. $type . '&localid=' . $localid . '&message=' . $message);
     }
@@ -38,9 +38,9 @@ class Kavenegar implements Message
      */
     public function sendMessageGroup($mobile = array(), $message = array(), $params = array())
     {
-        $date = isset($params['date']) ? $params['date'] : null;
-        $type = isset($params['type']) ? $params['type'] : null;
-        $localmessageids = isset($params['localid']) ? $params['localid'] : null;
+        $date = $params['date'] ?? null;
+        $type = $params['type'] ?? null;
+        $localmessageids = $params['localid'] ?? null;
 
         return  $this->requestHttp('https://api.kavenegar.com/v1/'. $this->setKey() .'/sms/sendarray.json?receptor=' . $mobile . '&sender='. $params['sender'] . '&date='. $date . '&type='. $type . '&localmessageids=' . $localmessageids . '&message=' . $message);
     }
@@ -65,7 +65,7 @@ class Kavenegar implements Message
                 $token = '&token=' . $params['token'] . '&token2=' . $params['token2'];
             }
         }
-        $type = isset($params['type']) ? $params['type'] : 'sms';
+        $type = $params['type'] ?? 'sms';
 
         return $this->requestHttp('https://api.kavenegar.com/v1/' . $this->setKey() . '/verify/lookup.json?receptor=' . $mobile . $token . '&type=' . $type . '&template=' . $template);
     }
@@ -83,8 +83,8 @@ class Kavenegar implements Message
         {
             $receptor = implode(',', $mobile);
         }
-        $date = isset($params['date']) ? $params['date'] : null;
-        $localid = isset($params['localid']) ? $params['localid'] : null;
+        $date = $params['date'] ?? null;
+        $localid = $params['localid'] ?? null;
 
         return $this->requestHttp('https://api.kavenegar.com/v1/' . $this->setKey() .'/call/maketts.json?receptor=' . $receptor. '&date='. $date . '&localid='. $localid .'&message=' . $message);
     }
