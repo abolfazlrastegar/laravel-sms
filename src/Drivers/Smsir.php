@@ -19,7 +19,7 @@ class Smsir implements Message
             "lineNumber" => $params['lineNumber'],
             "messageText" => $message,
             "mobiles" => $mobile,
-            "SendDateTime" => isset($params['SendDateTime']) ? $params['SendDateTime'] : null
+            "SendDateTime" => $params['SendDateTime'] ?? null
         ];
         $result = Http::withHeaders($this->setHeaders())->post('https://api.sms.ir/v1/send/bulk', (object) $data);
         return json_decode($result->getBody()->getContents(), true);
@@ -39,7 +39,7 @@ class Smsir implements Message
             "lineNumber" => $params['lineNumber'],
             "messageText" => $message,
             "mobiles" => $mobile,
-            "SendDateTime" => isset($params['SendDateTime']) ? $params['SendDateTime'] : null
+            "SendDateTime" => $params['SendDateTime'] ?? null
         ];
         $result = Http::withHeaders($this->setHeaders())->post('https://api.sms.ir/v1/send/likeToLike', (object) $data);
         return json_decode($result->getBody()->getContents(), true);

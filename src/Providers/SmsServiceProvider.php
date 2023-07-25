@@ -12,6 +12,10 @@ class SmsServiceProvider extends ServiceProvider
         $this->app->bind('sms', function () {
             return new Sms();
         });
+
+        $this->mergeConfigFrom(
+            __DIR__.'/../config/sms.php','sms'
+        );
     }
 
     public function boot()
