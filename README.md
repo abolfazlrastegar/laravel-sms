@@ -3,7 +3,7 @@
 <p align="center">
 <a href="https://packagist.org/packages/abolfazlrastegar/laravel-sms"><img src="https://img.shields.io/packagist/dm/abolfazlrastegar/laravel-sms" alt="Total Downloads"></a>
 <a href="https://packagist.org/packages/abolfazlrastegar/laravel-sms"><img src="https://img.shields.io/packagist/v/abolfazlrastegar/laravel-sms" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/abolfazlrastegar/laravel-sms"><img src="https://img.shields.io/github/license/abolfazlrastegar/laravel-payments" alt="License"></a>
+<a href="https://packagist.org/packages/abolfazlrastegar/laravel-sms"><img src="https://img.shields.io/packagist/v/abolfazlrastegar/laravel-sms" alt="License"></a>
 </p>
 
 ### Package Larave-sms
