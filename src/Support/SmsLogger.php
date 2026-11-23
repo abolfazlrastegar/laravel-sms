@@ -1,9 +1,9 @@
 <?php
 
-namespace Abolfazlrastegar\\LaravelSms\\Support;
+namespace Abolfazlrastegar\LaravelSms\Support;
 
-use Illuminate\\Support\\Facades\\DB;
-use Illuminate\\Support\\Facades\\Schema;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Throwable;
 
 class SmsLogger
