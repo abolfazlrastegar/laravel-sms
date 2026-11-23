@@ -1,29 +1,29 @@
 <?php
+
 return [
-
-    /*
-     |--------------------------------------
-     | set default sms
-     |--------------------------------------
-     | form 'Kavenegar', 'Smsir', 'Melipayamak'
-     */
-    'default' => 'Kavenegar',
-
-    /*
-     |-------------------------------------
-     | set setting driver sms
-     |------------------------------------
-     */
+    'default' => env('SMS_DRIVER', 'Kavenegar'),
+    'timeout' => (int) env('SMS_TIMEOUT', 15),
+    'mode' => env('SMS_MODE', 'sync'),
+    'logging' => [
+        'enabled' => filter_var(env('SMS_LOG_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
+    ],
+    'queue' => [
+        'name' => env('SMS_QUEUE', 'sms'),
+        'tries' => (int) env('SMS_QUEUE_TRIES', 3),
+        'timeout' => (int) env('SMS_QUEUE_TIMEOUT', 60),
+    ],
     'drivers' => [
         'Kavenegar' => [
-            'key' => '',
-            'type' => 'sms' // set call and sms
+            'key' => env('KAVENEGAR_API_KEY', ''),
+            'type' => env('KAVENEGAR_TYPE', 'sms'),
         ],
         'Smsir' => [
-            'key' => 'PN1TVeBeaAehFLJAKU4XdfpsFXsQguYfleO0bV4ceh6diTZid2hRXza3uSkBbDef'
+            'key' => env('SMSIR_API_KEY', ''),
         ],
         'Melipayamak' => [
-            'key' => ''
-        ]
-    ]
+            'username' => env('MELIPAYAMAK_USERNAME', ''),
+            'password' => env('MELIPAYAMAK_PASSWORD', ''),
+            'from' => env('MELIPAYAMAK_FROM', ''),
+        ],
+    ],
 ];

@@ -2,122 +2,113 @@
 
 namespace Abolfazlrastegar\LaravelSms\Drivers;
 
+use Abolfazlrastegar\LaravelSms\Exceptions\SmsException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\ConnectionException;
 
-class Kavenegar implements Message
+class Kavenegar implements Message, VoiceCall
 {
-
-    /**
-     * Send message one user or users
-     * @param $mobile
-     * @param $message
-     * @param $params
-     * @return mixed
-     */
-    public function sendMessages($mobile, $message, $params)
+    private function key()
     {
-        $receptor = $mobile;
-        if (is_array($mobile))
-        {
-            $receptor = implode(',', $mobile);
+        $key = config('sms.drivers.Kavenegar.key');
+        if (!is_string($key) || trim($key) === '') {
+            throw new SmsException('Kavenegar API key is not configured.');
         }
-        $date = isset($params['date']) ? $params['date'] : null;
-        $sender = isset($params['sender']) ? $params['sender'] : null;
-        $type = isset($params['type']) ? $params['type'] : null;
-        $localid = isset($params['localid']) ? $params['localid'] : null;
-
-      return  $this->requestHttp('https://api.kavenegar.com/v1/'. $this->setKey() .'/sms/send.json?receptor=' . $receptor . '&sender='. $sender . '&date='. $date . '&type='. $type . '&localid=' . $localid . '&message=' . $message);
+        return $key;
     }
 
-    /**
-     * Send message group users
-     * @param $mobile
-     * @param $message
-     * @param $params
-     * @return mixed
-     */
-    public function sendMessageGroup($mobile = array(), $message = array(), $params = array())
+    private function request($endpoint, array $params)
     {
-        $date = isset($params['date']) ? $params['date'] : null;
-        $type = isset($params['type']) ? $params['type'] : null;
-        $localmessageids = isset($params['localid']) ? $params['localid'] : null;
+        try {
+            $response = Http::timeout((int) config('sms.timeout', 15))
+                ->acceptJson()
+                ->get('https://api.kavenegar.com/v1/' . $this->key() . '/' . $endpoint . '.json', $params);
 
-        return  $this->requestHttp('https://api.kavenegar.com/v1/'. $this->setKey() .'/sms/sendarray.json?receptor=' . $mobile . '&sender='. $params['sender'] . '&date='. $date . '&type='. $type . '&localmessageids=' . $localmessageids . '&message=' . $message);
+            $response->throw();
+            $data = $response->json();
+            if (!is_array($data)) {
+                throw new SmsException('Kavenegar returned an invalid JSON response.');
+            }
+
+            return $data;
+        } catch (ConnectionException $exception) {
+            throw new SmsException('Could not connect to Kavenegar: ' . $exception->getMessage(), 0, $exception);
+        } catch (\Illuminate\Http\Client\RequestException $exception) {
+            throw new SmsException('Kavenegar API request failed: ' . $exception->getMessage(), (int) $exception->response->status(), $exception);
+        }
     }
 
-
-    /**
-     * Send message verify code to user
-     * @param $mobile
-     * @param $template
-     * @param $params
-     * @return mixed
-     */
-    public function sendVerifyCode($mobile, $template, $params)
+    public function sendMessages($mobile, $message, $params = [])
     {
-        $token = '&token=' . $params['token'];
-        if (count($params) > 1) {
-            if (count($params) > 2)
-            {
-                $token = '&token=' . $params['token'] . '&token2=' . $params['token2'] . '&token3=' . $params['token3'];
-            }else
-            {
-                $token = '&token=' . $params['token'] . '&token2=' . $params['token2'];
+        $query = [
+            'receptor' => is_array($mobile) ? implode(',', $mobile) : $mobile,
+            'message' => $message,
+        ];
+        foreach (['sender', 'date', 'type', 'localid'] as $key) {
+            if (isset($params[$key])) {
+                $query[$key] = $params[$key];
             }
         }
-        $type = isset($params['type']) ? $params['type'] : 'sms';
 
-        return $this->requestHttp('https://api.kavenegar.com/v1/' . $this->setKey() . '/verify/lookup.json?receptor=' . $mobile . $token . '&type=' . $type . '&template=' . $template);
+        return $this->request('sms/send', $query);
     }
 
-    /**
-     * Send message call for one user or users
-     * @param $mobile
-     * @param $message
-     * @param $params
-     * @return mixed
-     */
-    public function voiceCall ($mobile, $message, $params) {
-        $receptor = $mobile;
-        if (is_array($mobile))
-        {
-            $receptor = implode(',', $mobile);
+    public function sendMessageGroup($mobile = [], $message = [], $params = [])
+    {
+        if (!isset($params['sender']) || !is_array($params['sender'])) {
+            throw new \InvalidArgumentException('Kavenegar group sending requires a sender array.');
         }
-        $date = isset($params['date']) ? $params['date'] : null;
-        $localid = isset($params['localid']) ? $params['localid'] : null;
+        if (count($mobile) !== count($message) || count($mobile) !== count($params['sender'])) {
+            throw new \InvalidArgumentException('Recipients, messages and senders must have equal lengths.');
+        }
 
-        return $this->requestHttp('https://api.kavenegar.com/v1/' . $this->setKey() .'/call/maketts.json?receptor=' . $receptor. '&date='. $date . '&localid='. $localid .'&message=' . $message);
-    }
-
-    /**
-     * @return string[]
-     */
-    private function setHeaders ()
-    {
-        return [
-            'Accept: application/json',
-            'charset: utf-8',
-            'Content-Type: application/json',
+        $query = [
+            'receptor' => $mobile,
+            'sender' => $params['sender'],
+            'message' => $message,
         ];
+        foreach (['date', 'type', 'localmessageids'] as $key) {
+            if (isset($params[$key])) {
+                $query[$key] = $params[$key];
+            }
+        }
+
+        return $this->request('sms/sendarray', $query);
     }
 
-    /**
-     * @return \Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application|mixed
-     */
-    private function setKey ()
+    public function sendVerifyCode($mobile, $template, $params = [])
     {
-        return config('sms.drivers.Kavenegar.key');
+        if (!isset($params['token']) || !is_scalar($params['token'])) {
+            throw new \InvalidArgumentException('Kavenegar verify code requires a scalar token parameter.');
+        }
+
+        $query = [
+            'receptor' => $mobile,
+            'token' => $params['token'],
+            'template' => $template,
+            'type' => isset($params['type']) ? $params['type'] : 'sms',
+        ];
+        foreach (['token2', 'token3', 'token10', 'token20', 'tag'] as $key) {
+            if (isset($params[$key])) {
+                $query[$key] = $params[$key];
+            }
+        }
+
+        return $this->request('verify/lookup', $query);
     }
 
-    /**
-     * @param $url
-     * @return mixed
-     *
-     */
-    private function requestHttp ($url)
+    public function voiceCall($mobile, $message, $params = [])
     {
-        $result = Http::withHeaders($this->setHeaders())->post($url);
-        return json_decode($result->getBody()->getContents(), true);
-    }
+        $query = [
+            'receptor' => is_array($mobile) ? implode(',', $mobile) : $mobile,
+            'message' => $message,
+        ];
+        foreach (['date', 'localid', 'repeat', 'tag'] as $key) {
+            if (isset($params[$key])) {
+                $query[$key] = $params[$key];
+            }
+        }
 
+        return $this->request('call/maketts', $query);
+    }
 }
