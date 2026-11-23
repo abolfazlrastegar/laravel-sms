@@ -28,7 +28,8 @@
                 "Abolfazlrastegar\\LaravelSms\\Providers\\SmsServiceProvider"
             ],
             "aliases": {
-                "Sms": "Abolfazlrastegar\\LaravelSms\\Facades\\Sms"
+                "Sms": "Abolfazlrastegar\\LaravelSms\\Facades\\Sms",
+                "Payments": "Abolfazlrastegar\\LaravelSms\\Facades\\Sms"
             }
         }
     },
