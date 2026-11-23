@@ -4,6 +4,9 @@ return [
     'default' => env('SMS_DRIVER', 'Kavenegar'),
     'timeout' => (int) env('SMS_TIMEOUT', 15),
     'mode' => env('SMS_MODE', 'sync'),
+    'logging' => [
+        'enabled' => filter_var(env('SMS_LOG_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
+    ],
     'queue' => [
         'name' => env('SMS_QUEUE', 'sms'),
         'tries' => (int) env('SMS_QUEUE_TRIES', 3),
