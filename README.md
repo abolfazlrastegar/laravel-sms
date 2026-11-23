@@ -1,4 +1,16 @@
+<p align="center">
+  <img src="laravel-sms.jpg" alt="Laravel SMS package" width="180">
+</p>
+
 # Laravel SMS
+
+[![Total Downloads](https://img.shields.io/packagist/dt/abolfazlrastegar/laravel-sms?label=downloads)](https://packagist.org/packages/abolfazlrastegar/laravel-sms)
+[![Monthly Downloads](https://img.shields.io/packagist/dm/abolfazlrastegar/laravel-sms?label=monthly%20downloads)](https://packagist.org/packages/abolfazlrastegar/laravel-sms)
+[![Latest Version](https://img.shields.io/packagist/v/abolfazlrastegar/laravel-sms)](https://packagist.org/packages/abolfazlrastegar/laravel-sms)
+[![License](https://img.shields.io/packagist/l/abolfazlrastegar/laravel-sms)](LICENSE)
+[![PHP](https://img.shields.io/packagist/php-v/abolfazlrastegar/laravel-sms)](composer.json)
+[![Laravel](https://img.shields.io/badge/Laravel-8%20%E2%80%93%2013-FF2D20?logo=laravel&logoColor=white)](#requirements)
+[![Tests](https://github.com/abolfazlrastegar/laravel-sms/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/abolfazlrastegar/laravel-sms/actions/workflows/tests.yml)
 
 A Laravel package with a common API for Kavenegar, SMS.ir and Melipayamak.
 
