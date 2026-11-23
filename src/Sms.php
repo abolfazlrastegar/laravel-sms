@@ -90,9 +90,18 @@ class Sms
 
     public function sendMessageGroup()
     {
+        if (!is_array($this->mobile) || count($this->mobile) === 0) {
+            throw new InvalidArgumentException('Group SMS recipients must be a non-empty array.');
+        }
         $this->validateMobile(true);
+
         if (!is_array($this->message) || count($this->message) === 0) {
             throw new InvalidArgumentException('Group SMS messages must be a non-empty array.');
+        }
+        foreach ($this->message as $message) {
+            if (!is_string($message) || trim($message) === '') {
+                throw new InvalidArgumentException('Every group SMS message must be a non-empty string.');
+            }
         }
 
         if (count($this->mobile) !== count($this->message)) {
