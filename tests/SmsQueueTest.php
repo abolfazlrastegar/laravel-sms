@@ -15,6 +15,7 @@ class SmsQueueTest extends TestCase
         config([
             'sms.drivers.Kavenegar.key' => 'test-key',
             'queue.default' => 'database',
+            'sms.mode' => 'queue',
             'sms.queue.name' => 'outbound-sms',
         ]);
     }
@@ -59,7 +60,7 @@ class SmsQueueTest extends TestCase
 
     public function test_sync_connection_keeps_immediate_provider_response()
     {
-        config(['queue.default' => 'sync']);
+        config(['sms.mode' => 'sync', 'queue.default' => 'database']);
         Http::fake([
             'api.kavenegar.com/*' => Http::response(['return' => ['status' => 200]], 200),
         ]);
