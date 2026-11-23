@@ -51,6 +51,25 @@ class SmsLogger
         }
     }
 
+    public static function sanitizeError($message)
+    {
+        $message = (string) $message;
+        $secrets = [
+            config('sms.drivers.Kavenegar.key'),
+            config('sms.drivers.Smsir.key'),
+            config('sms.drivers.Melipayamak.username'),
+            config('sms.drivers.Melipayamak.password'),
+        ];
+
+        foreach ($secrets as $secret) {
+            if (is_string($secret) && $secret !== '') {
+                $message = str_replace($secret, '[REDACTED]', $message);
+            }
+        }
+
+        return substr($message, 0, 60000);
+    }
+
     public static function response($response)
     {
         $data = is_array($response) ? $response : [];
