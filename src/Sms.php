@@ -165,8 +165,8 @@ class Sms
     {
         $driver = $this->driverName();
 
-        // Preserve the original provider response when Laravel is configured for sync.
-        if (config('queue.default', 'sync') === 'sync') {
+        // Keep synchronous sending as the safe default; queue only when explicitly enabled.
+        if (strtolower((string) config('sms.mode', 'sync')) !== 'queue') {
             return $this->sendNow($operation, $payload);
         }
 
