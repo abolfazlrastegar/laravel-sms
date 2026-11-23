@@ -1,13 +1,14 @@
 <?php
 
-namespace Abolfazlrastegar\LaravelSms;
+namespace Abolfazlrastegar\\LaravelSms;
 
-use Abolfazlrastegar\LaravelSms\Drivers\Kavenegar;
-use Abolfazlrastegar\LaravelSms\Drivers\Melipayamak;
-use Abolfazlrastegar\LaravelSms\Drivers\Smsir;
-use Abolfazlrastegar\LaravelSms\Drivers\VoiceCall;
-use Abolfazlrastegar\LaravelSms\Exception\createMessageErrorException;
-use Abolfazlrastegar\LaravelSms\Exceptions\UnsupportedFeatureException;
+use Abolfazlrastegar\\LaravelSms\\Drivers\\Kavenegar;
+use Abolfazlrastegar\\LaravelSms\\Drivers\\Melipayamak;
+use Abolfazlrastegar\\LaravelSms\\Drivers\\Smsir;
+use Abolfazlrastegar\\LaravelSms\\Drivers\\VoiceCall;
+use Abolfazlrastegar\\LaravelSms\\Exception\\createMessageErrorException;
+use Abolfazlrastegar\\LaravelSms\\Exceptions\\UnsupportedFeatureException;
+use Abolfazlrastegar\\LaravelSms\\Jobs\\SendSmsJob;
 use InvalidArgumentException;
 
 class Sms
@@ -75,7 +76,11 @@ class Sms
             throw new InvalidArgumentException('A valid SMS template is required.');
         }
 
-        return $this->makeSms()->sendVerifyCode($this->mobile, $this->template, $this->params);
+        return $this->dispatchOrSend('sendVerifyCode', [
+            'mobile' => $this->mobile,
+            'template' => $this->template,
+            'params' => $this->params,
+        ]);
     }
 
     public function sendMessages()
@@ -85,7 +90,11 @@ class Sms
             throw new InvalidArgumentException('A non-empty SMS message is required.');
         }
 
-        return $this->makeSms()->sendMessages($this->mobile, $this->message, $this->params);
+        return $this->dispatchOrSend('sendMessages', [
+            'mobile' => $this->mobile,
+            'message' => $this->message,
+            'params' => $this->params,
+        ]);
     }
 
     public function sendMessageGroup()
@@ -108,7 +117,11 @@ class Sms
             throw new InvalidArgumentException('The number of recipients and messages must be equal.');
         }
 
-        return $this->makeSms()->sendMessageGroup($this->mobile, $this->message, $this->params);
+        return $this->dispatchOrSend('sendMessageGroup', [
+            'mobile' => $this->mobile,
+            'message' => $this->message,
+            'params' => $this->params,
+        ]);
     }
 
     public function voiceCall()
@@ -118,12 +131,47 @@ class Sms
             throw new InvalidArgumentException('A non-empty voice message is required.');
         }
 
+        return $this->dispatchOrSend('voiceCall', [
+            'mobile' => $this->mobile,
+            'message' => $this->message,
+            'params' => $this->params,
+        ]);
+    }
+
+    /**
+     * Execute a queued operation. This method is used by the package's internal job.
+     */
+    public function sendNow($operation, array $payload)
+    {
         $driver = $this->makeSms();
-        if (!$driver instanceof VoiceCall) {
-            throw new UnsupportedFeatureException('The selected SMS driver does not support voice calls.');
+
+        if ($operation === 'voiceCall') {
+            if (!$driver instanceof VoiceCall) {
+                throw new UnsupportedFeatureException('The selected SMS driver does not support voice calls.');
+            }
+
+            return $driver->voiceCall($payload['mobile'], $payload['message'], $payload['params']);
         }
 
-        return $driver->voiceCall($this->mobile, $this->message, $this->params);
+        if (!in_array($operation, ['sendVerifyCode', 'sendMessages', 'sendMessageGroup'], true)) {
+            throw new InvalidArgumentException('Unsupported SMS operation.');
+        }
+
+        return call_user_func_array([$driver, $operation], array_values($payload));
+    }
+
+    private function dispatchOrSend($operation, array $payload)
+    {
+        $driver = $this->driverName();
+
+        // Preserve the original provider response when Laravel is configured for sync.
+        if (config('queue.default', 'sync') === 'sync') {
+            return $this->sendNow($operation, $payload);
+        }
+
+        return SendSmsJob::dispatch($driver, $operation, $payload)
+            ->onConnection(config('queue.default'))
+            ->onQueue(config('sms.queue.name', 'sms'));
     }
 
     private function validateMobile($allowMultiple)
@@ -137,20 +185,25 @@ class Sms
         }
 
         foreach ($mobiles as $mobile) {
-            if (!is_string($mobile) || !preg_match('/^(?:\+?[1-9]\d{7,14}|0\d{9,10})$/', $mobile)) {
+            if (!is_string($mobile) || !preg_match('/^(?:\\+?[1-9]\\d{7,14}|0\\d{9,10})$/', $mobile)) {
                 throw new InvalidArgumentException('Invalid mobile number provided.');
             }
         }
     }
 
-    private function makeSms()
+    private function driverName()
     {
         $name = strtolower(trim((string) ($this->name_sms ?: config('sms.default', ''))));
         if (!isset(self::DRIVERS[$name])) {
             throw createMessageErrorException::notClass($name, 'supported SMS drivers: ' . implode(', ', array_keys(self::DRIVERS)));
         }
 
-        $class = self::DRIVERS[$name];
+        return $name;
+    }
+
+    private function makeSms()
+    {
+        $class = self::DRIVERS[$this->driverName()];
         return new $class();
     }
 }
