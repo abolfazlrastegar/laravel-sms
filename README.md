@@ -1,130 +1,84 @@
-![alt text](https://github.com/abolfazlrastegar/laravel-sms/blob/main/laravel-sms.jpg?raw=true)
+# Laravel SMS
 
-<p align="center">
-<a href="https://packagist.org/packages/abolfazlrastegar/laravel-sms"><img src="https://img.shields.io/packagist/dt/abolfazlrastegar/laravel-sms" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/abolfazlrastegar/laravel-sms"><img src="https://img.shields.io/packagist/v/abolfazlrastegar/laravel-sms" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/abolfazlrastegar/laravel-sms"><img src="https://img.shields.io/packagist/v/abolfazlrastegar/laravel-sms" alt="License"></a>
-</p>
+A Laravel package with a common API for Kavenegar, SMS.ir and Melipayamak.
 
-### Package Larave-sms
-With this package, you can use the capabilities of the SMS system sms.ir and kavenegar
+## Requirements
 
-### Install package laravel-sms
+- PHP 7.4+
+- Laravel 8–12 (subject to the PHP version required by each Laravel release)
+
+## Installation
+
 ```bash
-  composer require abolfazlrastegar/laravel-sms
-```
-
-### Publish config 
-```bash
-  php artisan vendor:publish --provider="Abolfazlrastegar\LaravelSms\Providers\SmsServiceProvider" --tag="config"
+composer require abolfazlrastegar/laravel-sms
+php artisan vendor:publish --provider="Abolfazlrastegar\\LaravelSms\\Providers\\SmsServiceProvider" --tag=config
 ```
 
-### Docs drivers
-<a href="https://apidocs.sms.ir/bulksmsv2.html">sms.ir</a>
+## Configuration
 
-<a href="https://kavenegar.com/rest.html#call-maketts">kavenegar</a>
+Set credentials in `.env`; never commit provider keys.
 
-[//]: # (<a href="https://www.melipayamak.com/api/">milepayamak</a>)
-
-### Use method `sendVerifyCode`
-```bash
-  // this model SMS system kavenegar
-  Sms::make('kavenegar')
-     ->mobile('09105805770')
-     ->template('454545')
-     ->params(['token' => 122254])
-     ->sendVerifyCode();
-```
-### or 
-```bash
-  Sms::make()
-     ->defaultSms()
-     ->mobile('09105805770')
-     ->template('454545')
-     ->params(['token' => '122254', 'token2' => '54875', 'token3' => '54875'])
-     ->sendVerifyCode();
+```dotenv
+SMS_DRIVER=Kavenegar
+SMS_TIMEOUT=15
+KAVENEGAR_API_KEY=
+SMSIR_API_KEY=
+MELIPAYAMAK_USERNAME=
+MELIPAYAMAK_PASSWORD=
+MELIPAYAMAK_FROM=
 ```
 
-### Use method `sendMessages`
-```bash
-  Sms::make('kavenegar')
-     ->mobile(['09105805772', '09105805772', '09105805772'])
-     ->message('set message for send')
-     ->params([
-        'date' => 'اختیاری',
-        'sender' => 'اختیاری',
-        'type' => 'اختیاری',
-        'localid' => 'اختیاری'
-     ]) 
-     ->sendMessages();
+After changing environment values in production, clear/rebuild Laravel's config cache.
+
+## Usage
+
+The fluent API remains compatible with the original package:
+
+```php
+use Abolfazlrastegar\\LaravelSms\\Facades\\Sms;
+
+Sms::make('kavenegar')
+    ->mobile('09123456789')
+    ->template('verify')
+    ->params(['token' => '123456'])
+    ->sendVerifyCode();
 ```
-### or
-```bash
-  Sms::make()
-     ->defaultSms()
-     ->mobile(['09105805772', '09105805772', '09105805772'])
-     ->message('set message for send')
-     ->params([
-        'date' => 'اختیاری',
-        'sender' => 'اختیاری',
-        'type' => 'اختیاری',
-        'localid' => 'اختیاری'
-     ])
-     ->sendMessages();
+
+Send a regular SMS:
+
+```php
+Sms::make('smsir')
+    ->mobile(['09123456789', '09123456780'])
+    ->message('Your message')
+    ->params(['lineNumber' => '3000XXXX'])
+    ->sendMessages();
 ```
-### Use method `sendMessageGroup`
-```bash
-  Sms::make('kavenegar')
-     ->mobile(['09105805772', '09105805772', '09105805772'])
-     ->message(['set message for send1', 'set message for send2', 'set message for send3'])
-     ->params([
-         'sender' => ['5455557', '987565423', '6322154'],
-         'date' => 'اختیاری',
-         'type' => 'اختیاری',
-         'localmessageids' => 'اختیاری',
-     ])
-     ->sendMessageGroup();
+
+Group send requires matching recipient/message counts. Kavenegar additionally requires a sender array with the same number of entries.
+
+```php
+Sms::make('kavenegar')
+    ->mobile(['09123456789', '09123456780'])
+    ->message(['Message one', 'Message two'])
+    ->params(['sender' => ['1000', '1000']])
+    ->sendMessageGroup();
 ```
-### or
+
+Voice calls are supported by Kavenegar only. Unsupported driver capabilities throw `UnsupportedFeatureException`.
+
+## Driver notes
+
+- Kavenegar uses its GET API with query parameters; Laravel encodes values safely.
+- SMS.ir uses the `X-API-KEY` header and JSON request bodies.
+- Melipayamak uses its REST SendSMS and BaseServiceNumber endpoints. For verification, pass the text template in `params(['text' => '...'])` and the provider body ID as `template()`.
+- No automatic retries are performed. Retrying a send after a timeout can produce duplicate SMS messages.
+- A successful API response means the provider accepted the request; it does not prove delivery to the handset.
+
+## Testing
+
 ```bash
-  Sms::make()
-     ->defaultSms()
-     ->mobile(['09105805772', '09105805772', '09105805772'])
-     ->message(['set message for send1', 'set message for send2', 'set message for send3'])
-     ->params([
-         'sender' => ['5455557', '987565423', '6322154'],
-         'date' => 'اختیاری',
-         'type' => 'اختیاری',
-         'localmessageids' => 'اختیاری',
-     ])
-     ->sendMessageGroup();
+composer install
+vendor/bin/phpunit
 ```
-#
-### Use method `voiceCall`
-this metode SMS system ['kavenegar'] support
-```bash
-  Sms::make('kavenegar')
-    ->message('set message for voice call')
-    ->mobile(['09105805772', '09105805772', '09105805772'])
-    ->voiceCall();
-```
-### or
-```bash
-  Sms::make()
-    ->defaultSms()
-    ->message('set message for voice call')
-    ->mobile(['09105805772', '09105805772', '09105805772'])
-    ->voiceCall();
-```
-###
-### Function Parameter
-| Driver      | Method      | Parameter                                                                                                                                                                                                           | Support |
-|-------------|-------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
-| kavenegar   | params()    | ['token' => 122254] // one parameter <br/>['token' => 122254, 'token2' => 54875, 'token3' => 54875] // multi parameter                                                                                              | Yes     |
- | Sms.ir      | params()    | ['name' => 'verify', 'value' => 45666] // send message code verify login <br/> [<br/>['name' => 'name_product', 'value' => 45666]<br/>['name' => 'price', 'value' => 5000]<br/>] // send message Factor buy product | Yes     |
- | Kavenegar   | mobile()    | '09105805770' // use for one user<br/> ['09105805770', '09105805770', '09105805770'] // Use for users <br/>                                                                                                         | Yes     |
-| Sms.ir      | mobile()    | '09105805770' // use for one user<br/> ['09105805770', '09105805770', '09105805770'] // Use for users <br/>                                                                                                         | Yes     |
-| Kavenegar   | voiceCall() |                                                                                                                                                                                                                     | Yes     |
-| Sms.ir      | voiceCall() |                                                                                                                                                                                                                     | No      |
-| Kavenegar   | message() | 'set message for voice call'<br/>  [<br/>'set message for send1',<br/> 'set message for send2',<br/> 'set message for send3'<br/>]                                                                                  | Yes     |
-| Sms.ir      | message() | 'set message for user'<br/>  [<br/>'set message for user1',<br/> 'set message for user2',<br/> 'set message for user3'<br/>]                                                                                        | Yes      |      
+
+Tests use Laravel's HTTP fake and never send real SMS messages.
