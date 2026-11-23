@@ -3,6 +3,7 @@
 return [
     'default' => env('SMS_DRIVER', 'Kavenegar'),
     'timeout' => (int) env('SMS_TIMEOUT', 15),
+    'mode' => env('SMS_MODE', 'sync'),
     'queue' => [
         'name' => env('SMS_QUEUE', 'sms'),
         'tries' => (int) env('SMS_QUEUE_TRIES', 3),
