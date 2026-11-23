@@ -1,9 +1,9 @@
 <?php
 
-namespace Abolfazlrastegar\LaravelSms\Providers;
+namespace Abolfazlrastegar\\LaravelSms\\Providers;
 
-use Abolfazlrastegar\LaravelSms\Sms;
-use Illuminate\Support\ServiceProvider;
+use Abolfazlrastegar\\LaravelSms\\Sms;
+use Illuminate\\Support\\ServiceProvider;
 
 class SmsServiceProvider extends ServiceProvider
 {
@@ -20,5 +20,9 @@ class SmsServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../config/sms.php' => config_path('sms.php'),
         ], 'config');
+
+        $this->publishes([
+            __DIR__ . '/../../database/migrations/2026_11_23_000000_create_sms_logs_table.php' => database_path('migrations/2026_11_23_000000_create_sms_logs_table.php'),
+        ], 'migrations');
     }
 }
