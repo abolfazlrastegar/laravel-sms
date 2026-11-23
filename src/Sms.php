@@ -9,6 +9,7 @@ use Abolfazlrastegar\\LaravelSms\\Drivers\\VoiceCall;
 use Abolfazlrastegar\\LaravelSms\\Exception\\createMessageErrorException;
 use Abolfazlrastegar\\LaravelSms\\Exceptions\\UnsupportedFeatureException;
 use Abolfazlrastegar\\LaravelSms\\Jobs\\SendSmsJob;
+use Illuminate\\Support\\Facades\\Bus;
 use InvalidArgumentException;
 
 class Sms
@@ -169,9 +170,11 @@ class Sms
             return $this->sendNow($operation, $payload);
         }
 
-        return SendSmsJob::dispatch($driver, $operation, $payload)
-            ->onConnection(config('queue.default'))
-            ->onQueue(config('sms.queue.name', 'sms'));
+        $job = new SendSmsJob($driver, $operation, $payload);
+        $job->onConnection(config('queue.default'));
+        $job->onQueue(config('sms.queue.name', 'sms'));
+
+        return Bus::dispatch($job);
     }
 
     private function validateMobile($allowMultiple)
