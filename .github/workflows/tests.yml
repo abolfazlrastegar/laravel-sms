@@ -59,5 +59,11 @@ jobs:
           "orchestra/testbench:${{ matrix.testbench }}"
           "phpunit/phpunit:${{ matrix.phpunit }}"
 
+      # Laravel 8–11 are end-of-life; Composer's advisory blocker prevents installing
+      # their final framework releases. Disable blocking only in these legacy test jobs.
+      - name: Allow EOL framework versions for compatibility tests
+        if: matrix.laravel == '^8.0' || matrix.laravel == '^9.0' || matrix.laravel == '^10.0' || matrix.laravel == '^11.0'
+        run: composer config audit.block-insecure false
+
       - run: composer update --prefer-dist --no-interaction --with-all-dependencies
       - run: vendor/bin/phpunit
