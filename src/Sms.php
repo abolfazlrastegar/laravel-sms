@@ -1,16 +1,18 @@
 <?php
 
-namespace Abolfazlrastegar\LaravelSms;
+namespace Abolfazlrastegar\\LaravelSms;
 
-use Abolfazlrastegar\LaravelSms\Drivers\Kavenegar;
-use Abolfazlrastegar\LaravelSms\Drivers\Melipayamak;
-use Abolfazlrastegar\LaravelSms\Drivers\Smsir;
-use Abolfazlrastegar\LaravelSms\Drivers\VoiceCall;
-use Abolfazlrastegar\LaravelSms\Exception\createMessageErrorException;
-use Abolfazlrastegar\LaravelSms\Exceptions\UnsupportedFeatureException;
-use Abolfazlrastegar\LaravelSms\Jobs\SendSmsJob;
-use Illuminate\Support\Facades\Bus;
+use Abolfazlrastegar\\LaravelSms\\Drivers\\Kavenegar;
+use Abolfazlrastegar\\LaravelSms\\Drivers\\Melipayamak;
+use Abolfazlrastegar\\LaravelSms\\Drivers\\Smsir;
+use Abolfazlrastegar\\LaravelSms\\Drivers\\VoiceCall;
+use Abolfazlrastegar\\LaravelSms\\Exception\\createMessageErrorException;
+use Abolfazlrastegar\\LaravelSms\\Exceptions\\UnsupportedFeatureException;
+use Abolfazlrastegar\\LaravelSms\\Jobs\\SendSmsJob;
+use Abolfazlrastegar\\LaravelSms\\Support\\SmsLogger;
+use Illuminate\\Support\\Facades\\Bus;
 use InvalidArgumentException;
+use Throwable;
 
 class Sms
 {
@@ -36,30 +38,15 @@ class Sms
         return new static($name_sms);
     }
 
-    public function mobile($mobile)
-    {
-        $this->mobile = $mobile;
-        return $this;
-    }
-
-    public function template($template)
-    {
-        $this->template = $template;
-        return $this;
-    }
-
-    public function message($message)
-    {
-        $this->message = $message;
-        return $this;
-    }
+    public function mobile($mobile) { $this->mobile = $mobile; return $this; }
+    public function template($template) { $this->template = $template; return $this; }
+    public function message($message) { $this->message = $message; return $this; }
 
     public function params($params)
     {
         if (!is_array($params)) {
             throw new InvalidArgumentException('SMS params must be an array.');
         }
-
         $this->params = $params;
         return $this;
     }
@@ -78,9 +65,7 @@ class Sms
         }
 
         return $this->dispatchOrSend('sendVerifyCode', [
-            'mobile' => $this->mobile,
-            'template' => $this->template,
-            'params' => $this->params,
+            'mobile' => $this->mobile, 'template' => $this->template, 'params' => $this->params,
         ]);
     }
 
@@ -92,9 +77,7 @@ class Sms
         }
 
         return $this->dispatchOrSend('sendMessages', [
-            'mobile' => $this->mobile,
-            'message' => $this->message,
-            'params' => $this->params,
+            'mobile' => $this->mobile, 'message' => $this->message, 'params' => $this->params,
         ]);
     }
 
@@ -113,15 +96,12 @@ class Sms
                 throw new InvalidArgumentException('Every group SMS message must be a non-empty string.');
             }
         }
-
         if (count($this->mobile) !== count($this->message)) {
             throw new InvalidArgumentException('The number of recipients and messages must be equal.');
         }
 
         return $this->dispatchOrSend('sendMessageGroup', [
-            'mobile' => $this->mobile,
-            'message' => $this->message,
-            'params' => $this->params,
+            'mobile' => $this->mobile, 'message' => $this->message, 'params' => $this->params,
         ]);
     }
 
@@ -133,15 +113,10 @@ class Sms
         }
 
         return $this->dispatchOrSend('voiceCall', [
-            'mobile' => $this->mobile,
-            'message' => $this->message,
-            'params' => $this->params,
+            'mobile' => $this->mobile, 'message' => $this->message, 'params' => $this->params,
         ]);
     }
 
-    /**
-     * Execute a queued operation. This method is used by the package's internal job.
-     */
     public function sendNow($operation, array $payload)
     {
         $driver = $this->makeSms();
@@ -150,7 +125,6 @@ class Sms
             if (!$driver instanceof VoiceCall) {
                 throw new UnsupportedFeatureException('The selected SMS driver does not support voice calls.');
             }
-
             return $driver->voiceCall($payload['mobile'], $payload['message'], $payload['params']);
         }
 
@@ -164,17 +138,41 @@ class Sms
     private function dispatchOrSend($operation, array $payload)
     {
         $driver = $this->driverName();
+        $queued = strtolower((string) config('sms.mode', 'sync')) === 'queue';
+        $logId = SmsLogger::create($driver, $operation, $payload, $queued ? 'queued' : 'processing');
 
-        // Keep synchronous sending as the safe default; queue only when explicitly enabled.
-        if (strtolower((string) config('sms.mode', 'sync')) !== 'queue') {
-            return $this->sendNow($operation, $payload);
+        if ($queued) {
+            $job = new SendSmsJob($driver, $operation, $payload, $logId);
+            $job->onConnection(config('queue.default'));
+            $job->onQueue(config('sms.queue.name', 'sms'));
+
+            try {
+                return Bus::dispatch($job);
+            } catch (Throwable $exception) {
+                SmsLogger::update($logId, [
+                    'status' => 'failed',
+                    'error_message' => substr($exception->getMessage(), 0, 60000),
+                ]);
+                throw $exception;
+            }
         }
 
-        $job = new SendSmsJob($driver, $operation, $payload);
-        $job->onConnection(config('queue.default'));
-        $job->onQueue(config('sms.queue.name', 'sms'));
-
-        return Bus::dispatch($job);
+        $startedAt = microtime(true);
+        try {
+            $response = $this->sendNow($operation, $payload);
+            SmsLogger::update($logId, array_merge(
+                ['status' => 'sent', 'duration_ms' => (int) ((microtime(true) - $startedAt) * 1000)],
+                SmsLogger::response($response)
+            ));
+            return $response;
+        } catch (Throwable $exception) {
+            SmsLogger::update($logId, [
+                'status' => 'failed',
+                'duration_ms' => (int) ((microtime(true) - $startedAt) * 1000),
+                'error_message' => substr($exception->getMessage(), 0, 60000),
+            ]);
+            throw $exception;
+        }
     }
 
     private function validateMobile($allowMultiple)
@@ -186,9 +184,8 @@ class Sms
         if (count($mobiles) === 0) {
             throw new InvalidArgumentException('At least one mobile number is required.');
         }
-
         foreach ($mobiles as $mobile) {
-            if (!is_string($mobile) || !preg_match('/^(?:\+?[1-9]\d{7,14}|0\d{9,10})$/', $mobile)) {
+            if (!is_string($mobile) || !preg_match('/^(?:\\+?[1-9]\\d{7,14}|0\\d{9,10})$/', $mobile)) {
                 throw new InvalidArgumentException('Invalid mobile number provided.');
             }
         }
@@ -200,7 +197,6 @@ class Sms
         if (!isset(self::DRIVERS[$name])) {
             throw createMessageErrorException::notClass($name, 'supported SMS drivers: ' . implode(', ', array_keys(self::DRIVERS)));
         }
-
         return $name;
     }
 
