@@ -1,12 +1,12 @@
 <?php
 
-namespace Abolfazlrastegar\\LaravelSms\\Jobs;
+namespace Abolfazlrastegar\LaravelSms\Jobs;
 
-use Abolfazlrastegar\\LaravelSms\\Sms;
-use Abolfazlrastegar\\LaravelSms\\Support\\SmsLogger;
-use Illuminate\\Bus\\Queueable;
-use Illuminate\\Contracts\\Queue\\ShouldQueue;
-use Illuminate\\Queue\\InteractsWithQueue;
+use Abolfazlrastegar\LaravelSms\Sms;
+use Abolfazlrastegar\LaravelSms\Support\SmsLogger;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
 use Throwable;
 
 class SendSmsJob implements ShouldQueue
