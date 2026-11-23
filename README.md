@@ -4,8 +4,10 @@ A Laravel package with a common API for Kavenegar, SMS.ir and Melipayamak.
 
 ## Requirements
 
-- PHP 7.4+
-- Laravel 8–12 (subject to the PHP version required by each Laravel release)
+- PHP 7.4+ (the host application's PHP version must also satisfy the selected Laravel release)
+- Laravel 8, 9, 10, 11, 12 and 13
+
+Laravel's minimum PHP versions vary by major release: Laravel 8 supports PHP 7.4; Laravel 9 requires PHP 8.0.2+; Laravel 10 requires PHP 8.1+; Laravel 11 and 12 require PHP 8.2+; Laravel 13 requires PHP 8.3+.
 
 ## Installation
 
