@@ -2,10 +2,10 @@
 
 namespace Tests;
 
-use Abolfazlrastegar\\LaravelSms\\Support\\SmsLogger;
-use Illuminate\\Database\\Schema\\Blueprint;
-use Illuminate\\Support\\Facades\\DB;
-use Illuminate\\Support\\Facades\\Schema;
+use Abolfazlrastegar\LaravelSms\Support\SmsLogger;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class SmsLoggerTest extends TestCase
 {
