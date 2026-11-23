@@ -11,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 
 class SendSmsJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use InteractsWithQueue, Queueable;
 
     public $tries;
     public $timeout;
