@@ -20,6 +20,7 @@ Set credentials in `.env`; never commit provider keys.
 
 ```dotenv
 SMS_DRIVER=Kavenegar
+SMS_MODE=sync
 SMS_TIMEOUT=15
 SMS_QUEUE=sms
 SMS_QUEUE_TRIES=3
@@ -31,10 +32,10 @@ MELIPAYAMAK_PASSWORD=
 MELIPAYAMAK_FROM=
 ```
 
-The package queues SMS operations automatically using Laravel's configured `queue.default` connection. No application-level Job class is required.
+Sending mode is controlled explicitly with `SMS_MODE`. The default is `sync`, so installing the package does not change the application's existing behavior. No application-level Job class is required.
 
-- `sync`: sends immediately and returns the provider response, preserving synchronous behavior.
-- `database`, `redis`, or another Laravel queue connection: dispatches the package's internal `SendSmsJob`.
+- `SMS_MODE=sync`: sends immediately and returns the provider response.
+- `SMS_MODE=queue`: dispatches the package's internal `SendSmsJob` using the connection configured by Laravel's `queue.default` (for example `database` or `redis`).
 - The queue name defaults to `sms` and can be changed with `SMS_QUEUE`.
 - Attempts and timeout are configurable with `SMS_QUEUE_TRIES` and `SMS_QUEUE_TIMEOUT`.
 
