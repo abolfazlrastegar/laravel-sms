@@ -34,7 +34,7 @@ class SendSmsJob implements ShouldQueue
     public function handle()
     {
         $startedAt = microtime(true);
-        $attempts = method_exists($this, 'attempts') ? (int) $this->attempts() : 1;
+        $attempts = method_exists($this, 'attempts') ? max(1, (int) $this->attempts()) : 1;
         SmsLogger::update($this->logId, ['status' => 'processing', 'attempts' => $attempts]);
 
         try {
@@ -49,7 +49,7 @@ class SendSmsJob implements ShouldQueue
                 'status' => $attempts < $this->tries ? 'retrying' : 'failed',
                 'attempts' => $attempts,
                 'duration_ms' => (int) ((microtime(true) - $startedAt) * 1000),
-                'error_message' => substr($exception->getMessage(), 0, 60000),
+                'error_message' => SmsLogger::sanitizeError($exception->getMessage()),
             ]);
             throw $exception;
         }
