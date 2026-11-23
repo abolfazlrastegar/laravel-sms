@@ -1,9 +1,9 @@
 <?php
 
-namespace Abolfazlrastegar\\LaravelSms\\Providers;
+namespace Abolfazlrastegar\LaravelSms\Providers;
 
-use Abolfazlrastegar\\LaravelSms\\Sms;
-use Illuminate\\Support\\ServiceProvider;
+use Abolfazlrastegar\LaravelSms\Sms;
+use Illuminate\Support\ServiceProvider;
 
 class SmsServiceProvider extends ServiceProvider
 {
