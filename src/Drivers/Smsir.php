@@ -1,10 +1,10 @@
 <?php
 
-namespace Abolfazlrastegar\\LaravelSms\\Drivers;
+namespace Abolfazlrastegar\LaravelSms\Drivers;
 
-use Abolfazlrastegar\\LaravelSms\\Exceptions\\SmsException;
-use Illuminate\\Support\\Facades\\Http;
-use Illuminate\\Http\\Client\\ConnectionException;
+use Abolfazlrastegar\LaravelSms\Exceptions\SmsException;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\ConnectionException;
 
 class Smsir implements Message
 {
@@ -38,7 +38,7 @@ class Smsir implements Message
             return $data;
         } catch (ConnectionException $exception) {
             throw new SmsException('Could not connect to SMS.ir: ' . $exception->getMessage(), 0, $exception);
-        } catch (\\Illuminate\\Http\\Client\\RequestException $exception) {
+        } catch (\Illuminate\Http\Client\RequestException $exception) {
             throw new SmsException('SMS.ir API request failed: ' . $exception->getMessage(), (int) $exception->response->status(), $exception);
         }
     }
@@ -46,7 +46,7 @@ class Smsir implements Message
     private function payload($mobile, $message, $params)
     {
         if (!isset($params['lineNumber'])) {
-            throw new \\InvalidArgumentException('SMS.ir lineNumber is required.');
+            throw new \InvalidArgumentException('SMS.ir lineNumber is required.');
         }
 
         return [
@@ -65,7 +65,7 @@ class Smsir implements Message
     public function sendMessageGroup($mobile = [], $message = [], $params = [])
     {
         if (count($mobile) !== count($message)) {
-            throw new \\InvalidArgumentException('Recipients and messages must have equal lengths.');
+            throw new \InvalidArgumentException('Recipients and messages must have equal lengths.');
         }
 
         return $this->request('send/likeToLike', $this->payload($mobile, $message, $params));
@@ -74,7 +74,7 @@ class Smsir implements Message
     public function sendVerifyCode($mobile, $template, $params = [])
     {
         if (!is_array($params)) {
-            throw new \\InvalidArgumentException('SMS.ir verify parameters must be an array.');
+            throw new \InvalidArgumentException('SMS.ir verify parameters must be an array.');
         }
 
         return $this->request('send/verify', [

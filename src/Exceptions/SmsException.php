@@ -1,6 +1,6 @@
 <?php
 
-namespace Abolfazlrastegar\\LaravelSms\\Exceptions;
+namespace Abolfazlrastegar\LaravelSms\Exceptions;
 
 use RuntimeException;
 

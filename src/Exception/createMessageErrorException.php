@@ -1,6 +1,6 @@
 <?php
 
-namespace Abolfazlrastegar\\LaravelSms\\Exception;
+namespace Abolfazlrastegar\LaravelSms\Exception;
 
 use Exception;
 

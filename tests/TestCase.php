@@ -2,12 +2,12 @@
 
 namespace Tests;
 
-use Orchestra\\Testbench\\TestCase as Orchestra;
+use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
 {
     protected function getPackageProviders($app)
     {
-        return [\\Abolfazlrastegar\\LaravelSms\\Providers\\SmsServiceProvider::class];
+        return [\Abolfazlrastegar\LaravelSms\Providers\SmsServiceProvider::class];
     }
 }

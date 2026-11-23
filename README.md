@@ -11,7 +11,7 @@ A Laravel package with a common API for Kavenegar, SMS.ir and Melipayamak.
 
 ```bash
 composer require abolfazlrastegar/laravel-sms
-php artisan vendor:publish --provider="Abolfazlrastegar\\LaravelSms\\Providers\\SmsServiceProvider" --tag=config
+php artisan vendor:publish --provider="Abolfazlrastegar\LaravelSms\Providers\SmsServiceProvider" --tag=config
 ```
 
 ## Configuration
@@ -35,7 +35,7 @@ After changing environment values in production, clear/rebuild Laravel's config 
 The fluent API remains compatible with the original package:
 
 ```php
-use Abolfazlrastegar\\LaravelSms\\Facades\\Sms;
+use Abolfazlrastegar\LaravelSms\Facades\Sms;
 
 Sms::make('kavenegar')
     ->mobile('09123456789')

@@ -1,10 +1,10 @@
 <?php
 
-namespace Abolfazlrastegar\\LaravelSms\\Drivers;
+namespace Abolfazlrastegar\LaravelSms\Drivers;
 
-use Abolfazlrastegar\\LaravelSms\\Exceptions\\SmsException;
-use Illuminate\\Support\\Facades\\Http;
-use Illuminate\\Http\\Client\\ConnectionException;
+use Abolfazlrastegar\LaravelSms\Exceptions\SmsException;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\ConnectionException;
 
 class Kavenegar implements Message, VoiceCall
 {
@@ -33,7 +33,7 @@ class Kavenegar implements Message, VoiceCall
             return $data;
         } catch (ConnectionException $exception) {
             throw new SmsException('Could not connect to Kavenegar: ' . $exception->getMessage(), 0, $exception);
-        } catch (\\Illuminate\\Http\\Client\\RequestException $exception) {
+        } catch (\Illuminate\Http\Client\RequestException $exception) {
             throw new SmsException('Kavenegar API request failed: ' . $exception->getMessage(), (int) $exception->response->status(), $exception);
         }
     }
@@ -56,10 +56,10 @@ class Kavenegar implements Message, VoiceCall
     public function sendMessageGroup($mobile = [], $message = [], $params = [])
     {
         if (!isset($params['sender']) || !is_array($params['sender'])) {
-            throw new \\InvalidArgumentException('Kavenegar group sending requires a sender array.');
+            throw new \InvalidArgumentException('Kavenegar group sending requires a sender array.');
         }
         if (count($mobile) !== count($message) || count($mobile) !== count($params['sender'])) {
-            throw new \\InvalidArgumentException('Recipients, messages and senders must have equal lengths.');
+            throw new \InvalidArgumentException('Recipients, messages and senders must have equal lengths.');
         }
 
         $query = [
@@ -79,7 +79,7 @@ class Kavenegar implements Message, VoiceCall
     public function sendVerifyCode($mobile, $template, $params = [])
     {
         if (!isset($params['token']) || !is_scalar($params['token'])) {
-            throw new \\InvalidArgumentException('Kavenegar verify code requires a scalar token parameter.');
+            throw new \InvalidArgumentException('Kavenegar verify code requires a scalar token parameter.');
         }
 
         $query = [

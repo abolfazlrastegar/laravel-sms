@@ -1,6 +1,6 @@
 <?php
 
-namespace Abolfazlrastegar\\LaravelSms\\Drivers;
+namespace Abolfazlrastegar\LaravelSms\Drivers;
 
 interface Message
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace Abolfazlrastegar\\LaravelSms\\Drivers;
+namespace Abolfazlrastegar\LaravelSms\Drivers;
 
-use Abolfazlrastegar\\LaravelSms\\Exceptions\\SmsException;
-use Illuminate\\Support\\Facades\\Http;
-use Illuminate\\Http\\Client\\ConnectionException;
+use Abolfazlrastegar\LaravelSms\Exceptions\SmsException;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\ConnectionException;
 
 class Melipayamak implements Message
 {
@@ -37,7 +37,7 @@ class Melipayamak implements Message
             return $data === null ? $response->body() : $data;
         } catch (ConnectionException $exception) {
             throw new SmsException('Could not connect to Melipayamak: ' . $exception->getMessage(), 0, $exception);
-        } catch (\\Illuminate\\Http\\Client\\RequestException $exception) {
+        } catch (\Illuminate\Http\Client\RequestException $exception) {
             throw new SmsException('Melipayamak API request failed: ' . $exception->getMessage(), (int) $exception->response->status(), $exception);
         }
     }
@@ -46,7 +46,7 @@ class Melipayamak implements Message
     {
         $from = isset($params['from']) ? $params['from'] : config('sms.drivers.Melipayamak.from');
         if (!$from) {
-            throw new \\InvalidArgumentException('Melipayamak sender number (from) is required.');
+            throw new \InvalidArgumentException('Melipayamak sender number (from) is required.');
         }
 
         return $this->request('SendSMS', [
@@ -60,19 +60,19 @@ class Melipayamak implements Message
     public function sendMessageGroup($mobile = [], $message = [], $params = [])
     {
         if (count($mobile) !== count($message)) {
-            throw new \\InvalidArgumentException('Recipients and messages must have equal lengths.');
+            throw new \InvalidArgumentException('Recipients and messages must have equal lengths.');
         }
         if (count(array_unique($message)) === 1) {
             return $this->sendMessages($mobile, reset($message), $params);
         }
 
-        throw new \\InvalidArgumentException('Melipayamak REST endpoint does not support per-recipient messages in this adapter.');
+        throw new \InvalidArgumentException('Melipayamak REST endpoint does not support per-recipient messages in this adapter.');
     }
 
     public function sendVerifyCode($mobile, $template, $params = [])
     {
         if (!isset($params['text']) || !is_string($params['text'])) {
-            throw new \\InvalidArgumentException('Melipayamak shared-service SMS requires params[text] and a body ID as template.');
+            throw new \InvalidArgumentException('Melipayamak shared-service SMS requires params[text] and a body ID as template.');
         }
 
         return $this->request('BaseServiceNumber', [

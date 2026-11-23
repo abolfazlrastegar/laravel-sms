@@ -2,9 +2,9 @@
 
 namespace Tests;
 
-use Illuminate\\Support\\Facades\\Http;
-use Abolfazlrastegar\\LaravelSms\\Facades\\Sms;
-use Abolfazlrastegar\\LaravelSms\\Exceptions\\UnsupportedFeatureException;
+use Illuminate\Support\Facades\Http;
+use Abolfazlrastegar\LaravelSms\Facades\Sms;
+use Abolfazlrastegar\LaravelSms\Exceptions\UnsupportedFeatureException;
 use InvalidArgumentException;
 
 class SmsDriverTest extends TestCase
@@ -86,7 +86,7 @@ class SmsDriverTest extends TestCase
             'api.kavenegar.com/*' => Http::response(['error' => 'bad request'], 422),
         ]);
 
-        $this->expectException(\\Abolfazlrastegar\\LaravelSms\\Exceptions\\SmsException::class);
+        $this->expectException(\Abolfazlrastegar\LaravelSms\Exceptions\SmsException::class);
 
         Sms::make('kavenegar')
             ->mobile('09123456789')
