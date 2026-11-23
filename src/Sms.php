@@ -147,7 +147,9 @@ class Sms
             $job->onQueue(config('sms.queue.name', 'sms'));
 
             try {
-                return Bus::dispatch($job);
+                Bus::dispatch($job);
+
+                return $job;
             } catch (Throwable $exception) {
                 SmsLogger::update($logId, [
                     'status' => 'failed',
