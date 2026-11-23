@@ -11,7 +11,9 @@ A Laravel package with a common API for Kavenegar, SMS.ir and Melipayamak.
 
 ```bash
 composer require abolfazlrastegar/laravel-sms
-php artisan vendor:publish --provider="Abolfazlrastegar\LaravelSms\Providers\SmsServiceProvider" --tag=config
+php artisan vendor:publish --provider="Abolfazlrastegar\\LaravelSms\\Providers\\SmsServiceProvider" --tag=config
+php artisan vendor:publish --provider="Abolfazlrastegar\\LaravelSms\\Providers\\SmsServiceProvider" --tag=migrations
+php artisan migrate
 ```
 
 ## Configuration
@@ -22,6 +24,7 @@ Set credentials in `.env`; never commit provider keys.
 SMS_DRIVER=Kavenegar
 SMS_MODE=sync
 SMS_TIMEOUT=15
+SMS_LOG_ENABLED=true
 SMS_QUEUE=sms
 SMS_QUEUE_TRIES=3
 SMS_QUEUE_TIMEOUT=60
@@ -35,9 +38,17 @@ MELIPAYAMAK_FROM=
 Sending mode is controlled explicitly with `SMS_MODE`. The default is `sync`, so installing the package does not change the application's existing behavior. No application-level Job class is required.
 
 - `SMS_MODE=sync`: sends immediately and returns the provider response.
-- `SMS_MODE=queue`: dispatches the package's internal `SendSmsJob` using the connection configured by Laravel's `queue.default` (for example `database` or `redis`).
+- `SMS_MODE=queue`: dispatches the package's internal `SendSmsJob` using Laravel's `queue.default` connection (for example `database` or `redis`).
 - The queue name defaults to `sms` and can be changed with `SMS_QUEUE`.
 - Attempts and timeout are configurable with `SMS_QUEUE_TRIES` and `SMS_QUEUE_TIMEOUT`.
+
+### Delivery logs
+
+The package can persist send lifecycle records in the `sms_logs` table for both sync and queue modes. Logging is enabled by default and can be disabled with `SMS_LOG_ENABLED=false`. Publish the package migration and run `php artisan migrate` to create the table. If the migration has not been run, logging safely becomes a no-op and does not interrupt SMS sending.
+
+The log stores the driver, operation, masked recipient number(s), lifecycle status, provider message ID/response code when available, attempt count, duration, and error message. Message bodies, templates, parameters, and provider credentials are never intentionally stored. Keep in mind that exception text comes from HTTP/provider libraries; do not expose raw log records publicly.
+
+Statuses include `queued`, `processing`, `retrying`, `sent`, and `failed`. The `metadata` JSON column is reserved for safe, non-sensitive additional context.
 
 Configure the queue connection in the host Laravel application as usual and run its queue worker, for example:
 
@@ -45,16 +56,14 @@ Configure the queue connection in the host Laravel application as usual and run 
 php artisan queue:work --queue=sms
 ```
 
-For the database driver, the host application must have Laravel's queue table migration installed. The package intentionally does not create or modify application database tables.
+For the database queue driver, the host application must also have Laravel's standard queue table migration installed. The package does not create or modify Laravel's queue tables.
 
 After changing environment values in production, clear/rebuild Laravel's config cache.
 
 ## Usage
 
-The fluent API remains compatible with the original package:
-
 ```php
-use Abolfazlrastegar\LaravelSms\Facades\Sms;
+use Abolfazlrastegar\\LaravelSms\\Facades\\Sms;
 
 Sms::make('kavenegar')
     ->mobile('09123456789')
