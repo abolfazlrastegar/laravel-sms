@@ -2,9 +2,9 @@
 
 namespace Tests;
 
-use Abolfazlrastegar\\LaravelSms\\Jobs\\SendSmsJob;
-use Illuminate\\Support\\Facades\\Http;
-use Illuminate\\Support\\Facades\\Queue;
+use Abolfazlrastegar\LaravelSms\Jobs\SendSmsJob;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 
 class SmsQueueTest extends TestCase
 {
@@ -23,7 +23,7 @@ class SmsQueueTest extends TestCase
     {
         Queue::fake();
 
-        $result = \\Abolfazlrastegar\\LaravelSms\\Facades\\Sms::make('kavenegar')
+        $result = \Abolfazlrastegar\LaravelSms\Facades\Sms::make('kavenegar')
             ->mobile('09123456789')
             ->template('verify')
             ->params(['token' => '123'])
@@ -64,7 +64,7 @@ class SmsQueueTest extends TestCase
             'api.kavenegar.com/*' => Http::response(['return' => ['status' => 200]], 200),
         ]);
 
-        $result = \\Abolfazlrastegar\\LaravelSms\\Facades\\Sms::make('kavenegar')
+        $result = \Abolfazlrastegar\LaravelSms\Facades\Sms::make('kavenegar')
             ->mobile('09123456789')
             ->template('verify')
             ->params(['token' => '123'])
