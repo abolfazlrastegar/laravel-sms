@@ -1,15 +1,15 @@
 <?php
 
-namespace Abolfazlrastegar\\LaravelSms;
+namespace Abolfazlrastegar\LaravelSms;
 
-use Abolfazlrastegar\\LaravelSms\\Drivers\\Kavenegar;
-use Abolfazlrastegar\\LaravelSms\\Drivers\\Melipayamak;
-use Abolfazlrastegar\\LaravelSms\\Drivers\\Smsir;
-use Abolfazlrastegar\\LaravelSms\\Drivers\\VoiceCall;
-use Abolfazlrastegar\\LaravelSms\\Exception\\createMessageErrorException;
-use Abolfazlrastegar\\LaravelSms\\Exceptions\\UnsupportedFeatureException;
-use Abolfazlrastegar\\LaravelSms\\Jobs\\SendSmsJob;
-use Illuminate\\Support\\Facades\\Bus;
+use Abolfazlrastegar\LaravelSms\Drivers\Kavenegar;
+use Abolfazlrastegar\LaravelSms\Drivers\Melipayamak;
+use Abolfazlrastegar\LaravelSms\Drivers\Smsir;
+use Abolfazlrastegar\LaravelSms\Drivers\VoiceCall;
+use Abolfazlrastegar\LaravelSms\Exception\createMessageErrorException;
+use Abolfazlrastegar\LaravelSms\Exceptions\UnsupportedFeatureException;
+use Abolfazlrastegar\LaravelSms\Jobs\SendSmsJob;
+use Illuminate\Support\Facades\Bus;
 use InvalidArgumentException;
 
 class Sms
@@ -188,7 +188,7 @@ class Sms
         }
 
         foreach ($mobiles as $mobile) {
-            if (!is_string($mobile) || !preg_match('/^(?:\\+?[1-9]\\d{7,14}|0\\d{9,10})$/', $mobile)) {
+            if (!is_string($mobile) || !preg_match('/^(?:\+?[1-9]\d{7,14}|0\d{9,10})$/', $mobile)) {
                 throw new InvalidArgumentException('Invalid mobile number provided.');
             }
         }
