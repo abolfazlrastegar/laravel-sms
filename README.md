@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="laravel-sms.jpg" alt="Laravel SMS package" width="180">
+  <img src="laravel-sms.png" alt="Laravel SMS package" width="180">
 </p>
 
 # Laravel SMS
