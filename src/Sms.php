@@ -151,7 +151,7 @@ class Sms
             } catch (Throwable $exception) {
                 SmsLogger::update($logId, [
                     'status' => 'failed',
-                    'error_message' => substr($exception->getMessage(), 0, 60000),
+                    'error_message' => SmsLogger::sanitizeError($exception->getMessage()),
                 ]);
                 throw $exception;
             }
